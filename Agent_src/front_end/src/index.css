@@ -1,0 +1,122 @@
+/* Global & component styles in one file */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #fafafa;
+}
+
+/* — Chat & Login Container — */
+.chat-container,
+.login-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Login-specific */
+.login-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.login-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+.login-container form > div {
+  margin-bottom: 1rem;
+}
+.login-container label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #555;
+}
+.login-container input[type="text"],
+.login-container input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.login-container button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.login-container button[type="submit"]:hover {
+  background: #0064dd;
+}
+.login-container .error {
+  color: #d00;
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* — Shared Chat Styles — */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  background: #fff;
+}
+
+.messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.msg {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+.msg.user {
+  background: #007aff;
+  color: #fff;
+  margin-left: auto;
+}
+.msg.bot {
+  background: #e5e5ea;
+  color: #000;
+}
+
+/* — Input Bar — */
+.input-bar {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.input-bar input {
+  flex: 1;
+  border: none;
+  padding: 0.75rem;
+  font-size: 1rem;
+  outline: none;
+}
+.input-bar button {
+  border: none;
+  background: #007aff;
+  color: #fff;
+  padding: 0 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.input-bar button:hover {
+  background: #0064dd;
+}
