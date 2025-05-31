@@ -1,4 +1,0 @@
-make front_end display llm output in realtime stream
-switch openai model to HugFace local models, like dpsk 7b
-look at mcp and rag with langgraph
-look at langchain ide for visual agentic workflow dev
