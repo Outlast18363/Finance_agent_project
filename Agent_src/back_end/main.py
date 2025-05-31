@@ -18,7 +18,7 @@ load_dotenv()  # reads .env into os.environ
 # -----------------------------------------------------------------------------
 # 1) Configuration
 # -----------------------------------------------------------------------------
-SECRET_KEY = "your‐very‐secret‐key"      # In production, pull from an environment variable!
+SECRET_KEY = "114514"      # In production, pull from an environment variable!
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 3600       # Token validity: 1 hour
 
