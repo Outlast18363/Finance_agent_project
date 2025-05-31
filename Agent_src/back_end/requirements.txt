@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-jose[cryptography]
+langchain[all]              # includes OpenAI + HuggingFacePipeline integration
+tiktoken                    # tokenizer support for OpenAI models
+python-dotenv               # lib for loading .env variables
+transformers>=4.31.0        # core HF Transformers library :contentReference[oaicite:0]{index=0}
+torch                       # PyTorch backend required by Transformers :contentReference[oaicite:1]{index=1}
+accelerate                  # for device mapping & mixed-precision :contentReference[oaicite:2]{index=2}
+huggingface_hub             # to download/cache models from the HF Hub :contentReference[oaicite:3]{index=3}
