@@ -117,7 +117,7 @@ flowchart TD
      npm install
      ```
 
-   - Run the development server:
+   - Run the development server when your codes are ready:
 
      ```bash
      npm start
