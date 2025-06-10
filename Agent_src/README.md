@@ -99,10 +99,21 @@ flowchart TD
 
 2. **Frontend**
 
+   - If you're starting from an empty directory, scaffold the React project:
+
+     ```bash
+     npx create-react-app front_end
+     ```
+
+   - Then move into the project folder (skip if it already exists in the repo):
+
+     ```bash
+     cd front_end
+     ```
+
    - Install JavaScript packages (includes axios):
 
      ```bash
-     cd ../front_end
      npm install
      ```
 
