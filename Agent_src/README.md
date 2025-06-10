@@ -1,8 +1,6 @@
 ## Simple AI Financial Chat Project
 
-While I was studying Agentic Workflow, I wanted to organize everything I did into a tutorial. So, here it is:
-
-A step-by-step guide for beginners to build a minimal web app where users can ask for a professional-style financial analysis of a stock (e.g., Tesla).
+This tutorial explains how to run the sample full‑stack application contained in this repository. The app lets a user log in and request a brief financial report using an LLM hosted on HuggingFace.
 
 ------
 
@@ -10,7 +8,7 @@ A step-by-step guide for beginners to build a minimal web app where users can as
 
 - **Frontend**: React.js (create‑react‑app)
 - **Backend**: FastAPI (Python)
-- **LLM Integration**: LangGraph or direct HuggingFace Python client
+- **LLM Integration**: HuggingFace Inference API via LangChain `LLM` wrapper
 - **Authentication**: JSON Web Tokens (JWT)
 
 ------
@@ -18,42 +16,38 @@ A step-by-step guide for beginners to build a minimal web app where users can as
 ### 2. Components & Purpose
 
 1. **Frontend (React)**
-   - **Purpose**: Provide a clean, Apple‑style chat interface for users to type questions and see responses.
+   - **Purpose**: Provide a simple chat-style interface for login and messaging.
    - **Key Parts**:
-     - Chat window component
-     - Input box + send button
-     - API service module to call backend
-2. **Authentication Module (FastAPI)**
-   - **Purpose**: Secure endpoints so only logged‑in users can use the LLM.
+     - `App.js` – handles login form, message list and input box
+     - `axios` instance – attaches the JWT and calls the backend
+     - Basic styling in `index.css`
+2. **Authentication Layer (FastAPI)**
+   - **Purpose**: Protect the LLM endpoint so only authenticated users may call it.
    - **Key Parts**:
-     - `/login` endpoint (returns JWT on success)
-     - Dependency injection to protect `/chat` endpoint
+     - `/login` endpoint (returns a signed JWT on success)
+     - Dependency `get_current_user` used by `/chat`
 3. **LLM Backend (FastAPI)**
-   - **Purpose**: Receive user prompts, forward them to an LLM, and return formatted financial analysis.
+   - **Purpose**: Forward user prompts to a small Llama model and return a concise report.
    - **Key Parts**:
      - `/chat` endpoint (accepts user message + JWT)
-     - `PromptEngine` class to wrap HuggingFace or LangGraph calls
-     - Easy hooks for future RAG/MCP: e.g. `PromptEngine.call_tools()` placeholder
+     - `PromptEngine` class in `llm_engine.py` using `InferenceClient`
 
 ------
 
 ### 3. Folder Structure
 
 ```
-project-root/
-├── frontend/         # React app
+Agent_src/
+├── front_end/          # React application
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── ChatWindow.jsx
-│   │   │   └── MessageInput.jsx
-│   │   └── api.js   # calls backend
-│   └── package.json
-└── backend/          # FastAPI app
-    ├── app/
-    │   ├── main.py       # mount routes
-    │   ├── auth.py       # JWT logic
-    │   ├── llm_engine.py # PromptEngine class
-    │   └── models.py     # Pydantic schemas
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   └── index.css
+│   ├── package.json
+│   └── ...
+└── back_end/           # FastAPI service
+    ├── main.py         # API routes and JWT logic
+    ├── llm_engine.py   # HuggingFace client wrapper
     └── requirements.txt
 ```
 
@@ -64,21 +58,21 @@ project-root/
 ```mermaid
 flowchart TD
   subgraph FE[Frontend]
-    U[User] -->|types message| CW(ChatWindow)
-    CW -->|POST /chat| API[API Client]
+    U[User] -->|login & send message| APP(App.js)
+    APP -->|HTTP requests| API[axios client]
   end
 
   subgraph BE[Backend]
-    APIClient -->|verify JWT| Auth(Dependency)
-    Auth -->|valid| ChatEP[/chat endpoint/]
-    ChatEP -->|format prompt| PE[PromptEngine]
-    PE -->|LLM call| LLM[HuggingFace or LangGraph]
-    LLM -->|raw reply| PE
-    PE -->|formatted reply| ChatEP
-    ChatEP -->|JSON response| APIClient
+    API -->|POST /login| Login[/login/]
+    API -->|POST /chat with JWT| Chat[/chat/]
+    Chat -->|format prompt| PE[PromptEngine]
+    PE -->|HF Inference| LLM[HuggingFace]
+    LLM -->|response| PE
+    PE -->|reply| Chat
   end
 
-  APIClient -->|display| CW
+  Chat -->|JSON reply| API
+  API -->|update UI| APP
 ```
 
 ------
@@ -87,50 +81,32 @@ flowchart TD
 
 1. **Backend**
 
-   - Create a virtualenv and install FastAPI & JWT libs:
+   - Create a virtual environment and install dependencies:
 
      ```bash
-     cd backend
+     cd Agent_src/back_end
      python -m venv venv && source venv/bin/activate
-     pip install fastapi uvicorn python‑jose[cryptography] transformers
+     pip install -r requirements.txt
      ```
 
-   - Define `auth.py` with a `/login` route issuing JWTs.
+   - Set the `HF_TOKEN` environment variable for the HuggingFace API.
 
-   - In `llm_engine.py`, wrap a small HF model or LangGraph call:
-
-     ```python
-     class PromptEngine:
-         def __init__(self):
-             # load your model or LangGraph client
-             pass
-         def generate_report(self, prompt: str) -> str:
-             # placeholder for sending to HF or LangGraph
-             return modeled_output
-     ```
-
-   - In `main.py`, mount `/login` and `/chat` (protected) routes.
-
-   - Run with:
+   - Start the API:
 
      ```bash
-     uvicorn app.main:app --reload
+     uvicorn main:app --reload
      ```
 
 2. **Frontend**
 
-   - Scaffold React app:
+   - Install JavaScript packages (includes axios):
 
      ```bash
-     npx create-react-app frontend
-     cd frontend && npm install axios
+     cd ../front_end
+     npm install
      ```
 
-   - Build `api.js` to attach JWT to headers and call `/chat`.
-
-   - Create `ChatWindow` and `MessageInput` components that use `api.js`.
-
-   - Run with:
+   - Run the development server:
 
      ```bash
      npm start
@@ -138,122 +114,40 @@ flowchart TD
 
 3. **Test the Flow**
 
-   - Hit `/login` with test credentials to get a token.
-   - In UI, paste token in a header config or simple prompt.
-   - Type `Can you please give me a financial analysis of Tesla?` and see the response.
+   - Visit `http://localhost:3000` and log in using the demo credentials `user` / `pwd`.
+   - Enter a question like “Give me a short financial analysis of Tesla.”
+   - The page will display the model’s response.
 
 ------
 
 ### 6. Future Extensions
 
-- **RAG & MCP Compatibility**: In `PromptEngine`, leave hooks like `def call_tools(self, data): ...` so you can plug in retrieval or custom tools later without changing your API surface.
-- **Scaling Up**: Swap HuggingFace local calls for LangGraph orchestration when you’re ready.
+- **RAG/MCP Hooks**: `PromptEngine` can be extended with retrieval or custom tools.
+- **Scaling Up**: Swap the small Llama model for LangGraph orchestration or a larger hosted model when ready.
 
 ------
 
-You now have a clear, minimal tutorial blueprint—just follow the steps, and you’ll have a working AI‑powered financial chat in under an hour!
-
-
-
-
-
-# 配置 set up
-
-## 在`front_end`中创建React Project
-
-
-
-```bash
-cd front_end #go to the folder first
-npx create-react-app . # '.' means create the project using current folder and use its name 'front_end'
-```
-
-
-
-In the same folder, install **axios** for api communication to backend
-
-```bash
-npm install axios
-```
-
-
-
-run the React code to see the result in the browser
-
-```bash
-npm start
-```
-
-
-
-## Run `back_end` code
-
-install all dependencies based on requirement.txt
-
-````
-pip install -r requirements.txt
-````
-
-
-
-activate backend server
-
-```bash
-uvicorn main:app --reload
-```
-
-
-
-
-
-
+The sections below provide a few quick references about concepts used in the project.
 
 ## 术语
 
-use MCP in langchain
-
-https://langchain-ai.github.io/langgraph/agents/mcp/
-
-Streaming
-
-https://langchain-ai.github.io/langgraph/agents/streaming/#tool-updates
-
-Memory
-
-https://langchain-ai.github.io/langgraph/agents/memory/#short-term-memory
-
-
-
 ### JWT
 
-after the user is authenticated with username and pwd, JWT generates a token
-
-client (front_end) uses token to make request to server (backend)
-
-Server uses Middleware to verify the token
-
-
+After the user authenticates with a username and password, the backend issues a token. The frontend sends this token in the `Authorization` header when calling `/chat`, and the server verifies it on each request.
 
 ### Async functions
 
-In the context of backend systems, **synchronous** methods execute sequentially, meaning one task must finish before the next begins, while **asynchronous** methods allow tasks to run concurrently, potentially improving efficiency and responsiveness. 
+In backend systems, *synchronous* methods run sequentially while *asynchronous* methods allow tasks to run concurrently, improving responsiveness.
 
+### React hooks
 
+React Hooks are functions that let functional components manage state and side effects.
 
-### react hook
-
-React Hooks are functions that allow functional components to manage state and side effects. 
-
-- `useState`: Manages state within a functional component.
-
-- `useEffect`: Handles side effects like data fetching or DOM manipulation.
-
-- `useContext`: Accesses values from the React context.
-
-- `useRef`: Creates a mutable reference that persists across renders.
-
-  
+- `useState`: Manages component state.
+- `useEffect`: Handles side effects like API calls.
+- `useContext`: Accesses values from React context.
+- `useRef`: Persists a mutable reference across renders.
 
 ### Mounted
 
-In React, "**mounted**" refers to the phase when a component is created and inserted into the Document Object Model (DOM). This means the component's virtual representation has been transformed into actual DOM elements, making it visible and interactive on the web page.
+A React component is **mounted** when it has been created and inserted into the DOM. At this stage it becomes visible and interactive on the page.
