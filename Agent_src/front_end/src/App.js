@@ -60,63 +60,69 @@ export default function App() {
     }
   }
 
-  const onKey = e => {
+  const onKey = e => { //whenever press the key, invoke the function
     if (e.key === 'Enter') sendMessage()
   }
 
-  // — RENDER —
-  if (!isAuthenticated) {
-    return (
-      <div className="login-container">
-        <h2>Login</h2>
-        <form onSubmit={handleLogin}>
-          <div>
-            <label>Username:</label>
-            <input
-              type="text"
-              value={loginData.username}
-              onChange={e =>
-                setLoginData(d => ({ ...d, username: e.target.value }))
-              }
-              required
-            />
-          </div>
-          <div>
-            <label>Password:</label>
-            <input
-              type="password"
-              value={loginData.password}
-              onChange={e =>
-                setLoginData(d => ({ ...d, password: e.target.value }))
-              }
-              required
-            />
-          </div>
-          {loginError && <p className="error">{loginError}</p>}
-          <button type="submit">Log In</button>
-        </form>
-      </div>
-    )
-  }
-
+// — RENDER —
+if (!isAuthenticated) {
+  // Render the login form…
   return (
-    <div className="chat-container">
-      <div className="messages">
-        {messages.map((m, i) => (
-          <div key={i} className={`msg ${m.from}`}>
-            {m.text}
-          </div>
-        ))}
-      </div>
-      <div className="input-bar">
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={onKey}
-          placeholder="Type your question…"
-        />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+    <div className="login-container">                               // Wrapper div for styling the login section
+      <h2>Login</h2>                                                // Title for the login box
+
+      <form onSubmit={handleLogin}>                                // Form element; calls handleLogin when submitted
+        <div>                                                      // Container for username field
+          <label>Username:</label>                                  // Static label text
+          <input
+            type="text"                                            // Input type: plain text
+            value={loginData.username}                            // Controlled: value comes from loginData.username state
+            onChange={e =>                                       // On each keystroke…
+              setLoginData(d => ({ …d, username: e.target.value })) // …merge new username into state
+            }
+            required                                              // Browser-level required validation
+          />
+        </div>
+
+        <div>                                                      // Container for password field
+          <label>Password:</label>                                 // Static label text
+          <input
+            type="password"                                        // Input type: password (obscures characters)
+            value={loginData.password}                            // Controlled: value comes from loginData.password state
+            onChange={e =>                                       // On each keystroke…
+              setLoginData(d => ({ …d, password: e.target.value }))// …merge new password into state
+            }
+            required                                              // Browser-level required validation
+          />
+        </div>
+
+        {loginError && <p className="error">{loginError}</p>}      // If loginError is truthy, render an error message
+
+        <button type="submit">Log In</button>                      // Button submits the form, triggering handleLogin
+      </form>
     </div>
   )
 }
+
+// If we reach here, the user **is** authenticated, so show the chat UI…
+return (
+  <div className="chat-container">                                 // Wrapper div for the entire chat interface
+    <div className="messages">                                     // Container for the message list
+      {messages.map((m, i) => (                                    // Loop over each message object
+        <div key={i} className={`msg ${m.from}`}>                  // Each message: unique key + CSS class based on sender
+          {m.text}                                                 // Display the message text
+        </div>
+      ))}
+    </div>
+
+    <div className="input-bar">                                    // Bottom bar for typing and sending new messages
+      <input
+        value={input}                                              // Controlled: value comes from input state
+        onChange={e => setInput(e.target.value)}                   // Update input state on every keystroke
+        onKeyDown={onKey}                                          // Optional: handle “Enter” or other key events
+        placeholder="Type your question…"                          // Placeholder text when the field is empty
+      />
+      <button onClick={sendMessage}>Send</button>                  // Clicking calls sendMessage()
+    </div>
+  </div>
+)
