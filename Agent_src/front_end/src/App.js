@@ -16,9 +16,10 @@ export default function App() {
 
   // Create axios instance
   const api = axios.create({
-    baseURL: 'http://localhost:8000',
+    baseURL: 'http://localhost:8000', // backend location
     headers: { 'Content-Type': 'application/json' },
   })
+  
   // Attach JWT to every request
   api.interceptors.request.use(cfg => {
     const token = localStorage.getItem('jwt')
@@ -52,7 +53,7 @@ export default function App() {
     const msg = input
     setInput('')
     try {
-      const { data } = await api.post('/chat', { message: msg })
+      const { data } = await api.post('/chat', { message: msg }) //data is a json defined by "chatResponse"
       setMessages(m => [...m, { from: 'bot', text: data.reply }])
     } catch {
       setMessages(m => [...m, { from: 'bot', text: 'Server error.' }])
