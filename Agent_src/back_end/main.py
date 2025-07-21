@@ -81,7 +81,7 @@ def login(data: LoginData):
 def get_current_user(
     creds: HTTPAuthorizationCredentials = Depends(security)
 ):
-    token = creds.credentials  # Extract raw JWT from the header
+    token = creds.credentials  # Extract raw JWT from the header from front end
     try:
         # Decode & verify signature and expiry
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -100,6 +100,7 @@ def get_current_user(
 #    - Returns the LLM’s reply
 # -----------------------------------------------------------------------------
 @app.post("/chat", response_model=ChatResponse) #creates a '/chat' record in the server log
+# response_model = ChatResponse: the output is framed by the 'ChatResponse' Pydantic model
 def chat(
     req: ChatRequest,
     user: str = Depends(get_current_user)  # ensures valid JWT
